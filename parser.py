@@ -1,4 +1,6 @@
 import numpy as np
+from scipy.sparse import lil_matrix
+import pdb
 
 users = []
 business = []
@@ -6,6 +8,9 @@ business = []
 sum_useful = 0
 row_count = 0 
 mu = 0
+
+def rmse(predictions,targets):
+    return np.sqrt(((predictions - targets)** 2).mean())
 
 def pearson_coefficient(u, v):
     nonzero_u = np.nonzero(u)[0]
@@ -43,7 +48,8 @@ with open('subset.txt') as f:
         if not tokens[0] in business:
             business.append(tokens[0])
         
-similarity = np.zeros((len(users), len(users)))
+#similarity = np.zeros((len(users), len(users)))
+#similarity = lil_matrix((len(users), len(users)))
 
 with open('train.txt') as f:
     for line in f.readlines():
@@ -97,6 +103,7 @@ with open('train.txt') as f:
     baseline_business = baseline_business / (lambda2+ count_business)
 
     weighted_mean = weighted_total/ float(den)
+    print "Weighted mean" , weighted_mean
 
     f.seek(0)
     for line in f.readlines(): 
@@ -110,27 +117,43 @@ with open('train.txt') as f:
         count_user[user_id] +=1.0
     
     baseline_user = baseline_user / (lambda3+ count_user)
-
-    for i in range(len(users)):
+    print "baseline user calculated"
+    '''for i in range(len(users)):
         for j in range(i+1,len(users)):
             val = pearson_coefficient(ratings_star[i,:], ratings_star[j,:])
             if val < 0.7:
                 val  = 0.0
             similarity[i,j] = val
-            similarity[j,i] = val
+            similarity[j,i] = val'''
 
-baseline_ui = np.zeros(len(users), len(business))
+baseline_ui = np.zeros((len(users), len(business)))
 for i in range(len(users)):
     for j in range(len(business)):
         baseline_ui[i, j] =  baseline_user[i] + baseline_business[j] + weighted_mean
 
 with open('test.txt') as f:
+    actual = []
+    predicted_new = []
     for line in f.readlines():
         tokens = line.split(",")
         user_id = users.index(tokens[1])
         business_id = business.index(tokens[0])
         
-        predicted = baseline_ui[user_id, business_id] + np.sum(np.dot(similarity[user_id,:], ratings_star[user_id,:] - baseline_ui[user_id,:]))
-        den  = np.sum(similarity[user_id,:]) + 15.0
-        predicted = predicted / float(den)
+        similarity = np.zeros(len(users))
+        for i in range(len(users)):
+            val = pearson_coefficient(ratings_star[user_id,:], ratings_star[i,:])
+            if val < 0.7:
+                val  = 0.0
+            similarity[i] = val
+    
+        nonzero =  np.where(ratings_star[:,business_id]>0)[0]
+        predicted = np.sum(np.dot(similarity[nonzero], ratings_star[nonzero,business_id] - baseline_ui[nonzero,business_id]))
+        
+        den  = np.sum(similarity[nonzero]) + 15.0
+        
+        predicted = baseline_ui[user_id, business_id] + predicted / float(den)
         print predicted, tokens[2]
+        predicted_new.append(predicted)
+        actual.append(tokens[2])
+
+print "RMSE: ", rmse(np.array(predicted_new), np.array(actual))
