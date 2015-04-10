@@ -1,13 +1,13 @@
 import json
 import pdb
 
-business = []
-with open('top_business.txt') as business_data:
+users = []
+with open('users20.txt') as business_data:
     for line in business_data.readlines():
-        business.append(line[:-1])
+        users.append(line.split(" ")[0])
 
 with open('data/yelp_academic_dataset_review.json') as json_data:
     for line in json_data.readlines():
         review = json.loads(line)
-        if review["business_id"] in business:
+        if review["user_id"] in users:
             print str(review["business_id"]) + ","+ str(review["user_id"]) + ","+ str(review["stars"]) + ","+ str(review["votes"]["useful"])

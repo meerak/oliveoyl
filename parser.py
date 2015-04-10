@@ -1,5 +1,4 @@
 import numpy as np
-from scipy.sparse import lil_matrix
 import pdb
 
 users = []
@@ -154,6 +153,6 @@ with open('test.txt') as f:
         predicted = baseline_ui[user_id, business_id] + predicted / float(den)
         print predicted, tokens[2]
         predicted_new.append(predicted)
-        actual.append(tokens[2])
+        actual.append(float(tokens[2]))
 
 print "RMSE: ", rmse(np.array(predicted_new), np.array(actual))
