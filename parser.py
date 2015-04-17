@@ -1,8 +1,10 @@
 import numpy as np
 import pdb
 
-users = []
-business = []
+users = {}
+business = {}
+user_idx = 0
+business_idx = 0
 
 sum_useful = 0
 row_count = 0 
@@ -38,19 +40,22 @@ def cosine_similarity(user1, user2):
     else:
         return np.dot(user1, user2) / den
 
-with open('subset.txt') as f:
+# count number of users and businesses
+with open('samples/ratings_15.csv') as f:
     for line in f.readlines():
         #business_id, user_id, stars, useful
         tokens = line.split(",")
         if not tokens[1] in users:
-            users.append(tokens[1])
+            users[tokens[1]] = user_idx
+            user_idx += 1
         if not tokens[0] in business:
-            business.append(tokens[0])
+            business[tokens[0]] = business_idx
+            business_idx+=1
         
 #similarity = np.zeros((len(users), len(users)))
 #similarity = lil_matrix((len(users), len(users)))
 
-with open('train.txt') as f:
+with open('samples/train50_15.txt') as f:
     for line in f.readlines():
         tokens = line.split(",")
         sum_useful += int(tokens[3])
@@ -82,8 +87,8 @@ with open('train.txt') as f:
     for line in f.readlines():
         tokens = line.split(",")
         
-        user_id = users.index(tokens[1])
-        business_id = business.index(tokens[0])
+        user_id = users[tokens[1]]
+        business_id = business[tokens[0]]
         rating_star = int(tokens[2])
         
         ratings_star[user_id, business_id] = rating_star
@@ -108,8 +113,8 @@ with open('train.txt') as f:
     for line in f.readlines(): 
         tokens = line.split(",")
         
-        user_id = users.index(tokens[1])
-        business_id = business.index(tokens[0])
+        user_id = users[tokens[1]]
+        business_id = business[tokens[0]]
         rating_star = int(tokens[2])
         
         baseline_user[user_id] += (rating_star - mu - baseline_business[business_id])
@@ -130,13 +135,13 @@ for i in range(len(users)):
     for j in range(len(business)):
         baseline_ui[i, j] =  baseline_user[i] + baseline_business[j] + weighted_mean
 
-with open('test.txt') as f:
+with open('samples/test50_15.txt') as f:
     actual = []
     predicted_new = []
     for line in f.readlines():
         tokens = line.split(",")
-        user_id = users.index(tokens[1])
-        business_id = business.index(tokens[0])
+        user_id = users[tokens[1]]
+        business_id = business[tokens[0]]
         
         similarity = np.zeros(len(users))
         for i in range(len(users)):
