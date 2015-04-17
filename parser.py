@@ -14,17 +14,14 @@ def rmse(predictions,targets):
     return np.sqrt(((predictions - targets)** 2).mean())
 
 def pearson_coefficient(u, v):
-    nonzero_u = np.nonzero(u)[0]
-    nonzero_v = np.nonzero(v)[0]
-    index_common = np.intersect1d(nonzero_u, nonzero_v)
-
-    u_mean = np.mean(u[index_common])
-    v_mean = np.mean(v[index_common])
+    
+    u_mean = np.mean(u)
+    v_mean = np.mean(v)
 
     #u_mean = np.mean(u[nonzero_u])
     #v_mean = np.mean(v[nonzero_v])
-    x = u[index_common] - u_mean
-    y = v[index_common] - v_mean
+    x = u - u_mean
+    y = v - v_mean
     den = float(np.sqrt(np.sum(np.square(x), axis=0))
                 * np.sqrt(np.sum(np.square(y), axis=0)))
     if den == 0:
@@ -41,7 +38,7 @@ def cosine_similarity(user1, user2):
         return np.dot(user1, user2) / den
 
 # count number of users and businesses
-with open('samples/ratings_15.csv') as f:
+with open('ratings_10.csv') as f:
     for line in f.readlines():
         #business_id, user_id, stars, useful
         tokens = line.split(",")
@@ -55,7 +52,7 @@ with open('samples/ratings_15.csv') as f:
 #similarity = np.zeros((len(users), len(users)))
 #similarity = lil_matrix((len(users), len(users)))
 
-with open('samples/train50_15.txt') as f:
+with open('train50_15.txt') as f:
     for line in f.readlines():
         tokens = line.split(",")
         sum_useful += int(tokens[3])
@@ -70,6 +67,7 @@ with open('samples/train50_15.txt') as f:
     mu = mu/ float(row_count)
 
     mean_useful = sum_useful/ float(row_count)
+    print "mean_useful = " + str(mean_useful)
     weighted_total = 0
     den = 0
 
@@ -134,30 +132,48 @@ baseline_ui = np.zeros((len(users), len(business)))
 for i in range(len(users)):
     for j in range(len(business)):
         baseline_ui[i, j] =  baseline_user[i] + baseline_business[j] + weighted_mean
+cnt = 0
 
-with open('samples/test50_15.txt') as f:
+nonzero_dict = {}
+for i in range(len(business)):
+    nonzero_dict[i] = np.where(ratings_star[:,i]>0)[0]
+
+fw = open("res_15_2.txt","w")
+with open('test50_15.txt') as f:
     actual = []
     predicted_new = []
     for line in f.readlines():
+        cnt += 1
         tokens = line.split(",")
         user_id = users[tokens[1]]
         business_id = business[tokens[0]]
         
         similarity = np.zeros(len(users))
-        for i in range(len(users)):
-            val = pearson_coefficient(ratings_star[user_id,:], ratings_star[i,:])
+
+        #These are the list of users who have rated this item
+        nonzero =  np.where(ratings_star[:,business_id]>0)[0]
+        nonzero_u = np.nonzero(ratings_star[user_id,:])[0]
+
+        # We only need to compute similarity of users who rated this item
+        for i in nonzero:
+            nonzero_v = np.nonzero(ratings_star[i,:])[0]
+            index_common = np.intersect1d(nonzero_u, nonzero_v)
+            val = pearson_coefficient(ratings_star[user_id,index_common], ratings_star[i,index_common])
             if val < 0.7:
                 val  = 0.0
             similarity[i] = val
-    
-        nonzero =  np.where(ratings_star[:,business_id]>0)[0]
+        
         predicted = np.sum(np.dot(similarity[nonzero], ratings_star[nonzero,business_id] - baseline_ui[nonzero,business_id]))
         
         den  = np.sum(similarity[nonzero]) + 15.0
         
         predicted = baseline_ui[user_id, business_id] + predicted / float(den)
-        print predicted, tokens[2]
+        # print predicted, tokens[2]
+        fw.write(str(predicted) + " " + tokens[2] + "\n")
+        # pdb.set_trace()
         predicted_new.append(predicted)
         actual.append(float(tokens[2]))
+        if cnt % 1000 == 0:
+            print "Rmse " + str(cnt) + " "  + str(rmse(np.array(predicted_new), np.array(actual)))
 
 print "RMSE: ", rmse(np.array(predicted_new), np.array(actual))
