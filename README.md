@@ -3,7 +3,7 @@
 
 ##### data
 We have used the Yelp academic dataset to test the algorithms.
-This dataset can be obtained by requesting access on the <a href="https://www.yelp.co.uk/academic_dataset">official site</a>   
+This dataset can be obtained by requesting access from the <a href="https://www.yelp.co.uk/academic_dataset">official site</a>   
 
 #####helper code
 jsonTocsv.py - Convert ratings file from json to csv format.
@@ -16,14 +16,19 @@ train_test_split.py - This program splits a given data file into train and test 
 python train_test_split.py <data-file-location>
 ```
 
-filter_items.py - This program prints businesses having more than x reviews and less than y reviews(optional). Default value of x is 20.
+filter_items.py - This program prints businesses having more than x reviews and less than y reviews(optional). Default value of x is 20. This can be used to create the user subtypes - heavyrater and coldstart.
 ```bash
 python filter_items.py <data-file-location> <optional-value-of-x> <optional-value-of-y> > filtered_items.txt 
 ```
 
-filter_items.py - This program prints users who have given more than x reviews and less than y reviews(optional). Default value of x is 5.
+filter_items.py - This program prints users who have given more than x reviews and less than y reviews(optional). Default value of x is 5. This can be used to create the niche items list.
 ```bash
 python filter_users.py <ratings-file-location> <optional-value-of-x> <optional-value-of-y> > filtered_users.txt 
+```
+
+filtertypes.py - This program creates the user subtypes(opinionated, blacksheep) and controversial items given the ratings file.
+```bash
+python filtertypes.py <ratings-file-location> 
 ```
 
 #####algorithms
