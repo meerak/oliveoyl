@@ -27,16 +27,24 @@ python filter_users.py <ratings-file-location> <optional-value-of-x> <optional-v
 ```
 
 #####algorithms
-ccf.py - This program uses the classical collaborative filtering approach to recommend an item to a user, based on items similar users have reviewed. It uses 10-fold cross validation and returns performance and accuracy metrics(RMSE, precision, recall, accuracy and f-measure) for the entire data as well as specialized user and item types.
+**Previous approaches**
+
+- ccf.py - This program uses the classical collaborative filtering approach to recommend an item to a user, based on items similar users have reviewed. It uses 10-fold cross validation and returns performance and accuracy metrics(RMSE, precision, recall, accuracy and f-measure) for the entire data as well as specialized user and item types.
 ```bash
-python ccf.py <ratings-file-location> > ccf_metrics.csv
-```
-baselineparser.py - This program is based on the observation that ratings are usually dependent on users or items independently. It predicts values based  It uses 10-fold cross validation and returns performance and accuracy metrics(RMSE, precision, recall, accuracy and f-measure) for the entire data as well as specialized user and item types.
-```bash
-python baselineparser.py <ratings-file-location> > baseline_metrics.csv
+python algorithms/ccf.py <ratings-file-location> > ccf_metrics.csv
 ```
 
-acnf.py - This program builds on ccf and baseline predictors. It uses both baseline measures and similar users to recommend items to users. It uses 10-fold cross validation and returns performance and accuracy metrics(RMSE, precision, recall, accuracy and f-measure) for the entire data as well as specialized user and item types.
+- baselineparser.py - This program is based on the observation that ratings are usually dependent on users or items independently. It predicts values based  It uses 10-fold cross validation and returns performance and accuracy metrics(RMSE, precision, recall, accuracy and f-measure) for the entire data as well as specialized user and item types.
 ```bash
-python acnf.py <ratings-file-location> > acnf_metrics.csv
+python algorithms/baselineparser.py <ratings-file-location> > baseline_metrics.csv
+```
+- ancf.py - This program builds on ccf and baseline predictors. It uses both baseline measures and similar users to recommend items to users. It uses 10-fold cross validation and returns performance and accuracy metrics(RMSE, precision, recall, accuracy and f-measure) for the entire data as well as specialized user and item types.
+```bash
+python algorithms/ancf.py <ratings-file-location> > ancf_metrics.csv
+```
+
+**New approach**
+wancf.py - This program is an improvement over ancf. It incorporates the usefulness votes each reviews receives and uses it as a weighing factor while recommending items to users. It uses 10-fold cross validation and returns performance and accuracy metrics(RMSE, precision, recall, accuracy and f-measure) for the entire data as well as specialized user and item types.
+```bash
+python algorithms/wancf.py <ratings-file-location> > wancf_metrics.csv
 ```
