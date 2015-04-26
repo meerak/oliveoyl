@@ -27,7 +27,7 @@ python filter_users.py <ratings-file-location> <optional-value-of-x> <optional-v
 ```
 
 #####algorithms
-**Previous approaches**
+######Previous approaches
 
 - ccf.py - This program uses the classical collaborative filtering approach to recommend an item to a user, based on items similar users have reviewed. It uses 10-fold cross validation and returns performance and accuracy metrics(RMSE, precision, recall, accuracy and f-measure) for the entire data as well as specialized user and item types.
 ```bash
@@ -43,7 +43,8 @@ python algorithms/baselineparser.py <ratings-file-location> > baseline_metrics.c
 python algorithms/ancf.py <ratings-file-location> > ancf_metrics.csv
 ```
 
-**New approach**
+######New approach
+
 wancf.py - This program is an improvement over ancf. It incorporates the usefulness votes each reviews receives and uses it as a weighing factor while recommending items to users. It uses 10-fold cross validation and returns performance and accuracy metrics(RMSE, precision, recall, accuracy and f-measure) for the entire data as well as specialized user and item types.
 ```bash
 python algorithms/wancf.py <ratings-file-location> > wancf_metrics.csv
